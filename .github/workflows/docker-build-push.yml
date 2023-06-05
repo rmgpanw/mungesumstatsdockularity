@@ -24,9 +24,16 @@ jobs:
       - name: Get original image tag
         id: extract_tag
         run: |
-          # Extract the original tag from the Docker image
-          ORIGINAL_TAG=$(docker image inspect --format='{{.Config.Labels.version}}' mungesumstats:latest)
-          echo "::set-output name=tag::$ORIGINAL_TAG"
+          # Extract the base image tag from the Dockerfile
+          DOCKERFILE_CONTENT=$(cat Dockerfile)
+          TAG_REGEX="FROM neurogenomicslab/mungesumstats:([^[:space:]]+)"
+          ORIGINAL_TAG=$(echo "$DOCKERFILE_CONTENT" | grep -oE "$TAG_REGEX" | awk -F ":" '{print $2}')
+          if [[ -n $ORIGINAL_TAG ]]; then
+            echo "::set-output name=tag::$ORIGINAL_TAG"
+          else
+            echo "Failed to extract the tag from the Dockerfile"
+            exit 1
+          fi
 
       - name: Determine new tag
         id: generate_tag
