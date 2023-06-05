@@ -17,7 +17,31 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Get commit SHA
+        id: extract_commit_sha
+        run: echo "::set-output name=commit_sha::${{ github.sha }}" 
+
+      - name: Get original image tag
+        id: extract_tag
+        run: |
+          # Extract the original tag from the Docker image
+          ORIGINAL_TAG=$(docker image inspect --format='{{.Config.Labels.version}}' mungesumstats:latest)
+          echo "::set-output name=tag::$ORIGINAL_TAG"
+
+      - name: Determine new tag
+        id: generate_tag
+        run: |
+          # Extract the first 7 characters from the commit SHA
+          COMMIT_SHA_SHORT=$(echo ${{ steps.extract_commit_sha.outputs.commit_sha }} | cut -c1-7)
+
+          # Combine the original tag and the first 7 characters of the commit SHA
+          NEW_TAG="${{ steps.extract_tag.outputs.tag }}-${COMMIT_SHA_SHORT}"
+          echo "::set-output name=tag::$NEW_TAG"
+
       - name: Build and push Docker image
         run: |
-          docker build -t rmgpanw/mungesumstatsdockularity:${{ github.sha }} .
-          docker push rmgpanw/mungesumstatsdockularity:${{ github.sha }}
+          # Build the new Docker image with the combined tag
+          docker build -t rmgpanw/mungesumstatsdockularity:${{ steps.generate_tag.outputs.tag }} .
+
+          # Push the new Docker image
+          docker push rmgpanw/mungesumstatsdockularity:${{ steps.generate_tag.outputs.tag }}
