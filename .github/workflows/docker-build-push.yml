@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -44,6 +44,15 @@ jobs:
           # Combine the original tag and the first 7 characters of the commit SHA
           NEW_TAG="${{ steps.extract_tag.outputs.tag }}-${COMMIT_SHA_SHORT}"
           echo "::set-output name=tag::$NEW_TAG"
+       
+      #  From SO post: https://github.com/orgs/community/discussions/26351#discussioncomment-3251595
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h     
 
       - name: Build and push Docker image
         run: |
