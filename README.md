@@ -1,0 +1,5 @@
+# README
+
+THis repository creates a docker image based on that for the R package [MungeSumstats](https://neurogenomics.github.io/MungeSumstats/articles/docker.html), additionally including human genome builds 37 and 38 and their associated dbSNP databases. 
+
+Github actions is used to build the docker image and push this to [Docker Hub](https://hub.docker.com/repository/docker/rmgpanw/mungesumstatsdockularity/general). The image tag is a concatenation of the original MungeSumstats image tag with the first 7 characters for the commit in this GitHub repository, from which the image was built. For example, the tag name `1.7.10-526ecfa` indicates that image [neurogenomicslab/mungesumstats:1.7.10](https://hub.docker.com/layers/neurogenomicslab/mungesumstats/1.7.10/images/sha256-5710a42222645be376d0e746b8ffb20df1dd315515d7d3e4190f11fb27e3e7e3?context=explore) was used in [commit `526ecfa`](https://github.com/rmgpanw/mungesumstatsdockularity/commit/526ecfa4a1a82991ab931cfe89ea427894992595).
